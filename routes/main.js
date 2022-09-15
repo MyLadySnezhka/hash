@@ -15,10 +15,10 @@ const storageConfig = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads');
     },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-        //cb(null, file.originalname + '-' + Date.now());
-    }
+    // filename: (req, file, cb) => {
+    //     cb(null, Date.now() + path.extname(file.originalname));
+    //     //cb(null, file.originalname + '-' + Date.now());
+    // }
 });
 
 router.use(express.static(__dirname));
@@ -31,54 +31,37 @@ newName = '';
 //загрузка одного изображения
 router.post('/uploads', function(req, res, next){
     const filedata = req.file;
-        if(!filedata)
-            res.send("Ошибка при загрузке файла");
-        else
-            res.send("Файл загружен");
-            
-        // console.log ('Тип файла:', filedata.mimetype);
-        // console.log ('Имя файла', filedata.originalname);
-        // console.log ('Размер файла:', filedata.size);
-        // console.log ('Путь для сохранения:', filedata.path);
+    // console.log ('Тип файла:', filedata.mimetype);
+    // console.log ('Имя файла', filedata.originalname);
+    // console.log ('Размер файла:', filedata.size);
+    // console.log ('Путь для сохранения:', filedata.path);
     console.log(filedata);
+    if(!filedata)
+        res.send("Ошибка при загрузке файла");
+    else {
+        //res.send("Файл загружен");    
 
     getHash(filedata.path, 'sha256', function (err, hash) {
         hash = hash.toString('hex');
         
-        newName = './uploads/' + hash + path.extname(file.originalname); 
+        newName = './uploads/' + hash + path.extname(filedata.originalname); 
         console.log(newName);
         fs.rename(filedata.path, newName, (err) => {
             if (err) throw err;
             console.log('file renamed');
         });
         })
+        console.log('отдача', newName);
+        res.render('uploads', newName);
+    
+    }
  });
 
 
-//загрузка нескольких изображений
-// router.post('/uploads', uploads.array('photo', 2), function(req, res, next){
-  
-//     const file = req.file;
-//     res.send('Завантажено!');
-//  });
-
-//  router.get('/form', function(req, res, next){
-//     const form = fs.readFyleSync('./main.ejs', {encoding: 'utf8'});
-//     res.send(form);
-//  });
-
-
-// router.post('/tren', (req, res) => {
-//     console.log('Тренировка построена!');
-//     res.json({ status: 'ok' });
+// router.use((req, res, next) => {
+//     console.log('URL:', req.url);
+//     //res.send('моя прелесть!'); 
+//     next();  
 // });
-
-
-
-router.use((req, res, next) => {
-    console.log('URL:', req.url);
-    //res.send('моя прелесть!'); 
-    next();  
-});
 
 module.exports = router;
